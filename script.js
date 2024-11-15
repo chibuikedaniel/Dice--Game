@@ -85,6 +85,23 @@ const getHighestDuplicates = (arr) => {
     updateRadioOption(5, 0);
 };
 
+const detectFullHouse = (arr) => {
+    const counts = {};
+
+    for (const num of arr) {
+        counts[num] = counts[num] ? counts[num] + 1 : 1;
+    }
+
+    const hasThreeOfAKind = Object.values(counts).includes(3);
+    const hasPair = Object.values(counts).includes(2);
+
+    if (hasThreeOfAKind && hasPair) {
+        updateRadioOption(2, 25);
+    }
+
+    updateRadioOption(5, 0);
+};
+
 const resetRadioOptions = () => {
     scoreInputs.forEach((input) => {
         input.disabled = true;
@@ -115,6 +132,35 @@ const resetGame = () => {
     resetRadioOptions();
 };
 
+const checkForStraights = (diceValuesArr) => {
+    const uniqueSorted = [...new Set(diceValuesArr)].sort((a, b) => a - b);
+
+    const hasConsecutive = (arr, length) => {
+        for (let i = 0; i <= arr.length - length; i++) {
+            if (arr.slice(i, i + length).every((val, idx, subArr) => idx === 0 || val === subArr[idx - 1] + 1)) {
+                return true;
+            }
+        }
+        return false;
+    };
+
+    if (uniqueSorted.length >= 5 && hasConsecutive(uniqueSorted, 5)) {
+        // Large Straight
+        updateRadioOption(4, 40); // Assuming index 4 corresponds to Large Straight
+        // Also enable Small Straight (30 points)
+        updateRadioOption(3, 30); // Assuming index 3 corresponds to Small Straight
+    }
+    // Check for small straight (4 consecutive numbers)
+    else if (uniqueSorted.length >= 4 && hasConsecutive(uniqueSorted, 4)) {
+        updateRadioOption(3, 30); // Small Straight
+    }
+    else {
+        updateRadioOption(scoreInputs.length - 1, 0);
+    }
+};
+
+
+
 
 rollDiceBtn.addEventListener("click", () => {
     if (rolls === 3) {
@@ -125,6 +171,8 @@ rollDiceBtn.addEventListener("click", () => {
         rollDice();
         updateStats()
         getHighestDuplicates(diceValuesArr);
+        detectFullHouse(diceValuesArr);
+        checkForStraights(diceValuesArr);
     }
 });
 
