@@ -16,6 +16,31 @@ let score = 0;
 let round = 1;
 let rolls = 0;
 
+rollDiceBtn.addEventListener("click", () => {
+    // Generate five random numbers between 1 and 6
+    diceValuesArr = Array.from({ length: 5 }, () => Math.floor(Math.random() * 6) + 1);
+
+    // Update the dice elements to display the generated numbers
+    listOfAllDice.forEach((dieElement, index) => {
+        dieElement.textContent = diceValuesArr[index]; // Display the corresponding number
+    });
+});
+
+const updateStats = () => {
+    rollsElement.textContent = rolls;
+    roundElement.textContent = round;
+};
+
+rollDiceBtn.addEventListener("click", () => {
+    if (rolls === 3) {
+        alert("You have made three rolls this round. Please select a score.");
+    } else {
+        rolls++;
+        rollDice();
+        updateStats()
+    }
+});
+
 rulesBtn.addEventListener("click", () => {
     isModalShowing = !isModalShowing;
     rulesContainer.style.display = isModalShowing ? "block" : "none";
