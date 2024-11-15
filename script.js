@@ -42,6 +42,13 @@ const updateRadioOption = (index, score) => {
     scoreSpans[index].textContent = `, score = ${score}`;
 };
 
+const updateScore = (selectedValue, achieved) => {
+    score += parseInt(selectedValue);
+    totalScoreElement.textContent = score;
+
+    scoreHistory.innerHTML += `<li>${achieved} : ${selectedValue}</li>`;
+};
+
 const getHighestDuplicates = (arr) => {
     const counts = {};
 
@@ -89,11 +96,32 @@ const resetRadioOptions = () => {
     });
 };
 
+const resetGame = () => {
+    diceValuesArr = [0, 0, 0, 0, 0];
+    score = 0;
+    round = 1;
+    rolls = 0;
+
+    listOfAllDice.forEach((dice, index) => {
+        dice.textContent = diceValuesArr[index];
+    });
+
+    totalScoreElement.textContent = score;
+    scoreHistory.innerHTML = "";
+
+    rollsElement.textContent = rolls;
+    roundElement.textContent = round;
+
+    resetRadioOptions();
+};
+
+
 rollDiceBtn.addEventListener("click", () => {
     if (rolls === 3) {
         alert("You have made three rolls this round. Please select a score.");
     } else {
         rolls++;
+        resetRadioOptions();
         rollDice();
         updateStats()
         getHighestDuplicates(diceValuesArr);
@@ -104,4 +132,34 @@ rulesBtn.addEventListener("click", () => {
     isModalShowing = !isModalShowing;
     rulesContainer.style.display = isModalShowing ? "block" : "none";
     rulesBtn.textContent = isModalShowing ? "Hide rules" : "Show rules";
-})
+});
+
+keepScoreBtn.addEventListener("click", () => {
+    let selectedValue;
+    let achieved;
+
+    for (const radioButton of scoreInputs) {
+        if (radioButton.checked) {
+            selectedValue = radioButton.value;
+            achieved = radioButton.id;
+            break;
+        }
+    }
+
+    if (selectedValue) {
+        rolls = 0;
+        round++;
+        updateStats();
+        resetRadioOptions();
+        updateScore(selectedValue, achieved);
+        if (round > 6) {
+            setTimeout(() => {
+                alert(`Game Over! Your total score is ${score}`);
+                resetGame();
+            }, 500);
+
+        }
+    } else {
+        alert("Please select an option or roll the dice");
+    }
+});
